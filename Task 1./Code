@@ -1,0 +1,122 @@
+import time
+users = {}  
+def register():
+    print("\n🔐 User Registration:")
+    username = input("Enter a new username: ").lower()
+    if username in users:
+        print("❌ Username already exists. Try logging in.")
+        return
+    pin = input("Create a 4-digit PIN: ")
+    if len(pin) != 4 or not pin.isdigit():
+        print("❌ PIN must be a 4-digit number.")
+        return
+    try:
+        balance = float(input("Enter initial deposit amount: ₹"))
+        if balance < 0:
+            print("❌ Balance cannot be negative.")
+            return
+    except ValueError:
+        print("❌ Please enter a valid amount.")
+        return
+    users[username] = [pin, balance, []]
+    print(f"✅ User '{username}' registered successfully!")
+
+def login():
+    print("\n🔑 Login:")
+    username = input("Enter your username: ").lower()
+    if username not in users:
+        print("❌ User not found. Please register first.")
+        return None
+    for attempt in range(3):
+        pin = input("Enter your 4-digit PIN: ")
+        if pin == users[username][0]:
+            print("✅ Login successful!")
+            return username
+        else:
+            print("❌ Incorrect PIN.")
+    print("❌ Too many failed attempts. Try again later.")
+    return None
+
+def show_menu():
+    print("\n====== ATM MENU ======")
+    print("1. Check Balance")
+    print("2. Deposit")
+    print("3. Withdraw")
+    print("4. Transaction History")
+    print("5. Logout")
+
+def check_balance(username):
+    print(f"💰 Your current balance is ₹{users[username][1]:.2f}")
+
+def deposit(username):
+    try:
+        amount = float(input("Enter amount to deposit: ₹"))
+        if amount > 0:
+            users[username][1] += amount
+            users[username][2].append(f"Deposited ₹{amount:.2f}")
+            print(f"✅ ₹{amount:.2f} deposited successfully.")
+        else:
+            print("❌ Enter a positive amount.")
+    except ValueError:
+        print("❌ Invalid amount.")
+
+def withdraw(username):
+    try:
+        amount = float(input("Enter amount to withdraw: ₹"))
+        if amount > 0:
+            if amount <= users[username][1]:
+                users[username][1] -= amount
+                users[username][2].append(f"Withdrew ₹{amount:.2f}")
+                print(f"✅ ₹{amount:.2f} withdrawn successfully.")
+            else:
+                print("❌ Insufficient balance.")
+        else:
+            print("❌ Enter a positive amount.")
+    except ValueError:
+        print("❌ Invalid amount.")
+
+def transaction_history(username):
+    print("\n📜 Transaction History:")
+    history = users[username][2]
+    if history:
+        for item in history:
+            print("•", item)
+    else:
+        print("No transactions yet.")
+
+def atm_system():
+    while True:
+        print("\n====== WELCOME TO PYTHON ATM ======")
+        print("1. Register")
+        print("2. Login")
+        print("3. Exit")
+        choice = input("Choose an option (1-3): ")
+        
+        if choice == '1':
+            register()
+        elif choice == '2':
+            username = login()
+            if username:
+                while True:
+                    show_menu()
+                    option = input("Select an option (1-5): ")
+                    if option == '1':
+                        check_balance(username)
+                    elif option == '2':
+                        deposit(username)
+                    elif option == '3':
+                        withdraw(username)
+                    elif option == '4':
+                        transaction_history(username)
+                    elif option == '5':
+                        print("🔒 Logged out.")
+                        break
+                    else:
+                        print("❌ Invalid option.")
+                    time.sleep(1.5)
+        elif choice == '3':
+            print("👋 Thank you for using Python ATM. Goodbye!")
+            break
+        else:
+            print("❌ Invalid choice.")
+atm_system()
